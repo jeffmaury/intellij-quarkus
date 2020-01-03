@@ -10,7 +10,12 @@
  ******************************************************************************/
 package com.redhat.devtools.intellij.quarkus.search;
 
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiMember;
+import org.eclipse.lsp4j.Location;
 
 import java.net.URISyntaxException;
 
@@ -22,4 +27,9 @@ import java.net.URISyntaxException;
  */
 public interface IPsiUtils {
     VirtualFile findFile(String uri) throws URISyntaxException;
+    PsiClass findClass(Module module, String className);
+
+    void discoverSource(PsiFile classFile);
+
+    Location toLocation(PsiMember fieldOrMethod);
 }

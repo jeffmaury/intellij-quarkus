@@ -10,11 +10,23 @@
  ******************************************************************************/
 package com.redhat.devtools.intellij.quarkus.search;
 
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiDocumentManager;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiMember;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.redhat.microprofile.commons.ClasspathKind;
+import org.eclipse.lsp4j.Location;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -38,6 +50,37 @@ public class PsiUtils implements IPsiUtils {
     @Override
     public VirtualFile findFile(String uri) throws URISyntaxException {
         return LocalFileSystem.getInstance().findFileByIoFile(Paths.get(new URI(uri)).toFile());
+    }
+
+    @Override
+    public PsiClass findClass(Module module, String className) {
+        JavaPsiFacade facade = JavaPsiFacade.getInstance(module.getProject());
+        return facade.findClass(className, GlobalSearchScope.allScope(module.getProject()));
+    }
+
+    @Override
+    public void discoverSource(PsiFile classFile) {
+        //TODO
+    }
+
+    @Override
+    public Location toLocation(PsiMember psiMember) {
+        PsiElement sourceElement = psiMember.getSourceElement();
+        if (sourceElement != null) {
+            PsiFile file = sourceElement.getContainingFile();
+            Location location = new Location();
+            location.setUri(file.getVirtualFile().getUrl());
+            Document document = PsiDocumentManager.getInstance(psiMember.getProject()).getDocument(file);
+            TextRange range = sourceElement.getTextRange();
+            int startLine = document.getLineNumber(range.getStartOffset());
+            int startLineOffset = document.getLineStartOffset(startLine);
+            int endLine = document.getLineNumber(range.getEndOffset());
+            int endLineOffset = document.getLineStartOffset(endLine);
+            location.setRange(new Range(new Position(startLine + 1, range.getStartOffset() - startLineOffset + 1), new Position(endLine + 1, range.getEndOffset() - endLineOffset + 1)));
+            return location;
+
+        }
+        return null;
     }
 
     public static ClasspathKind getClasspathKind(VirtualFile file, Module module) {
