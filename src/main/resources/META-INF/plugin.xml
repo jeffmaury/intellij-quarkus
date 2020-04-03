@@ -62,6 +62,7 @@
     <extensionPoint name="propertiesProvider" interface="com.redhat.devtools.intellij.quarkus.search.IPropertiesProvider"/>
     <extensionPoint name="javaHoverParticipant" interface="com.redhat.devtools.intellij.quarkus.search.core.java.hover.IJavaHoverParticipant"/>
     <extensionPoint name="javaDiagnosticsParticipant" interface="com.redhat.devtools.intellij.quarkus.search.core.java.diagnostics.IJavaDiagnosticsParticipant"/>
+    <extensionPoint name="javaCodeActionParticipant" beanClass="com.redhat.devtools.intellij.quarkus.search.core.java.codeaction.JavaCodeActionExtensionPointBean"/>
   </extensionPoints>
   <extensions defaultExtensionNs="com.redhat.devtools.intellij.quarkus">
     <propertiesProvider implementation="com.redhat.devtools.intellij.quarkus.search.providers.MicroProfileConfigPropertyProvider"/>
@@ -76,6 +77,8 @@
     <javaHoverParticipant implementation="com.redhat.devtools.intellij.quarkus.search.internal.config.java.MicroProfileConfigHoverParticipant"/>
 
     <javaDiagnosticsParticipant implementation="com.redhat.devtools.intellij.quarkus.search.internal.health.java.MicroProfileHealthDiagnosticsParticipant"/>
+
+    <javaCodeActionParticipant kind="quickfix" targetDiagnostic="microprofile-health#HealthAnnotationMissing" implementationClass="com.redhat.devtools.intellij.quarkus.search.internal.health.java.HealthAnnotationMissingQuickFix"/>
   </extensions>
 
   <application-components>

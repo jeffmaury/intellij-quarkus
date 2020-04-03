@@ -14,11 +14,13 @@ import com.redhat.devtools.intellij.quarkus.lsp4ij.LanguageClientImpl;
 import com.redhat.devtools.intellij.quarkus.search.PsiUtilsImpl;
 import com.redhat.devtools.intellij.quarkus.search.PropertiesManager;
 import com.redhat.devtools.intellij.quarkus.search.core.PropertiesManagerForJava;
+import com.redhat.microprofile.commons.MicroProfileJavaCodeActionParams;
 import com.redhat.microprofile.commons.MicroProfileJavaDiagnosticsParams;
 import com.redhat.microprofile.commons.MicroProfileJavaHoverParams;
 import com.redhat.microprofile.commons.MicroProfileProjectInfo;
 import com.redhat.microprofile.commons.MicroProfileProjectInfoParams;
 import com.redhat.microprofile.ls.api.MicroProfileLanguageClientAPI;
+import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.slf4j.Logger;
@@ -38,6 +40,11 @@ public class QuarkusLanguageClient extends LanguageClientImpl implements MicroPr
   @Override
   public CompletableFuture<Hover> getJavaHover(MicroProfileJavaHoverParams javaParams) {
     return CompletableFuture.completedFuture(PropertiesManagerForJava.getInstance().hover(javaParams, PsiUtilsImpl.getInstance()));
+  }
+
+  @Override
+  public CompletableFuture<List<CodeAction>> getJavaCodeAction(MicroProfileJavaCodeActionParams javaParams) {
+    return CompletableFuture.completedFuture((List<CodeAction>)PropertiesManagerForJava.getInstance().codeAction(javaParams, PsiUtilsImpl.getInstance()));
   }
 
   @Override

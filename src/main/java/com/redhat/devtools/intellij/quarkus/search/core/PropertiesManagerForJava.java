@@ -22,9 +22,12 @@ import com.redhat.devtools.intellij.quarkus.search.core.java.diagnostics.IJavaDi
 import com.redhat.devtools.intellij.quarkus.search.core.java.diagnostics.JavaDiagnosticsContext;
 import com.redhat.devtools.intellij.quarkus.search.core.java.hover.IJavaHoverParticipant;
 import com.redhat.devtools.intellij.quarkus.search.core.java.hover.JavaHoverContext;
+import com.redhat.devtools.intellij.quarkus.search.internal.core.java.codeaction.CodeActionHandler;
 import com.redhat.microprofile.commons.DocumentFormat;
+import com.redhat.microprofile.commons.MicroProfileJavaCodeActionParams;
 import com.redhat.microprofile.commons.MicroProfileJavaDiagnosticsParams;
 import com.redhat.microprofile.commons.MicroProfileJavaHoverParams;
+import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Position;
@@ -52,6 +55,19 @@ public class PropertiesManagerForJava {
 
     public static PropertiesManagerForJava getInstance() {
         return INSTANCE;
+    }
+
+    private final CodeActionHandler codeActionHandler = new CodeActionHandler();
+
+    /**
+     * Returns the codeAction list according the given codeAction parameters.
+     *
+     * @param params  the codeAction parameters
+     * @param utils   the utilities class
+     * @return the codeAction list according the given codeAction parameters.
+     */
+    public List<? extends CodeAction> codeAction(MicroProfileJavaCodeActionParams params, IPsiUtils utils) {
+        return codeActionHandler.codeAction(params, utils);
     }
 
     /**
@@ -111,6 +127,7 @@ public class PropertiesManagerForJava {
         }
     }
 
+
     /**
      * Returns the hover information according to the given <code>params</code>
      *
@@ -150,9 +167,7 @@ public class PropertiesManagerForJava {
     private void collectHover(String uri, PsiFile typeRoot, PsiElement hoverElement, IPsiUtils utils,
                               Position hoverPosition, DocumentFormat documentFormat, List<Hover> hovers) {
         try {
-            VirtualFile file = utils.findFile(uri);
-            if (file != null) {
-                Module module = utils.getModule(file);
+            Module module = utils.getModule(uri);
                 if (module != null) {
                     // Collect all adapted hover participant
                     JavaHoverContext context = new JavaHoverContext(uri, typeRoot, utils, module, hoverElement, hoverPosition,
@@ -173,7 +188,6 @@ public class PropertiesManagerForJava {
                     });
                     definitions.forEach(definition -> definition.endHover(context));
                 }
-            }
         } catch (URISyntaxException e) {
             LOGGER.error(e.getLocalizedMessage(), e);
         }
